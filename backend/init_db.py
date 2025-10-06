@@ -70,6 +70,7 @@ def init_database():
         )
         
         db.session.add(admin_user)
+        db.session.commit()  # Commit admin user first to get the ID
         
         # Create default categories
         print("\nCreating default categories...")
