@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { useSearchParams } from 'react-router-dom';
-import { videosAPI, categoriesAPI } from '../lib/api';
+import { videosAPI, categoriesAPI } from '@/lib/api';
 import VideoGrid from '../components/video/VideoGrid';
 import VideoFilters from '../components/video/VideoFilters';
 import LoadingSpinner from '../components/ui/LoadingSpinner';

@@ -11,7 +11,7 @@ import {
   Calendar,
   Play
 } from 'lucide-react';
-import { videosAPI } from '../../lib/api';
+import { videosAPI } from '@/lib/api';
 
 const VideoCard = ({ video }) => {
   const formatDuration = (seconds) => {
