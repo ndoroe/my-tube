@@ -60,7 +60,7 @@ check_requirements() {
     fi
     
     # Check for required commands
-    local required_commands=("docker" "docker-compose" "curl" "git")
+    local required_commands=("docker" "curl" "git")
     local missing_commands=()
     
     for cmd in "${required_commands[@]}"; do
@@ -68,6 +68,20 @@ check_requirements() {
             missing_commands+=("$cmd")
         fi
     done
+    
+    # Check for Docker Compose (v1 or v2)
+    local compose_available=false
+    if command -v "docker-compose" &> /dev/null; then
+        compose_available=true
+        COMPOSE_CMD="docker-compose"
+    elif docker compose version &> /dev/null; then
+        compose_available=true
+        COMPOSE_CMD="docker compose"
+    fi
+    
+    if [[ $compose_available == false ]]; then
+        missing_commands+=("docker compose")
+    fi
     
     if [[ ${#missing_commands[@]} -gt 0 ]]; then
         log_error "Missing required commands: ${missing_commands[*]}"
@@ -191,15 +205,15 @@ start_services() {
     
     # Pull latest images
     log_info "Pulling base Docker images..."
-    docker-compose pull postgres redis nginx
+    $COMPOSE_CMD pull postgres redis nginx
     
     # Build custom images
     log_info "Building application images..."
-    docker-compose build --no-cache
+    $COMPOSE_CMD build --no-cache
     
     # Start services
     log_info "Starting services..."
-    docker-compose up -d
+    $COMPOSE_CMD up -d
     
     # Wait for services to be ready
     log_info "Waiting for services to start..."
@@ -210,7 +224,7 @@ start_services() {
     local attempt=1
     
     while [[ $attempt -le $max_attempts ]]; do
-        if docker-compose ps | grep -q "Up"; then
+        if $COMPOSE_CMD ps | grep -q "Up"; then
             log_success "Services are starting up..."
             break
         fi
@@ -236,7 +250,7 @@ initialize_database() {
     local attempt=1
     
     while [[ $attempt -le $max_attempts ]]; do
-        if docker-compose exec -T postgres pg_isready -U mytube_user -d mytube &> /dev/null; then
+        if $COMPOSE_CMD exec -T postgres pg_isready -U mytube_user -d mytube &> /dev/null; then
             log_success "Database is ready."
             break
         fi
@@ -253,7 +267,7 @@ initialize_database() {
     
     # Run database initialization
     log_info "Running database initialization script..."
-    docker-compose exec backend python init_db.py
+    $COMPOSE_CMD exec backend python init_db.py
     
     log_success "Database initialized successfully."
 }
@@ -269,10 +283,10 @@ show_completion_info() {
     log_info "Default admin credentials were set during database initialization."
     echo
     log_info "Useful commands:"
-    log_info "  View logs:        docker-compose logs -f"
-    log_info "  Stop services:    docker-compose down"
-    log_info "  Start services:   docker-compose up -d"
-    log_info "  Update services:  docker-compose pull && docker-compose up -d"
+    log_info "  View logs:        $COMPOSE_CMD logs -f"
+    log_info "  Stop services:    $COMPOSE_CMD down"
+    log_info "  Start services:   $COMPOSE_CMD up -d"
+    log_info "  Update services:  $COMPOSE_CMD pull && $COMPOSE_CMD up -d"
     echo
     log_info "Configuration files:"
     log_info "  Environment:      .env"
@@ -296,7 +310,7 @@ show_completion_info() {
 # Cleanup function for errors
 cleanup_on_error() {
     log_error "Installation failed. Cleaning up..."
-    docker-compose down --remove-orphans 2>/dev/null || true
+    $COMPOSE_CMD down --remove-orphans 2>/dev/null || true
     log_info "Cleanup completed. Check the error messages above and try again."
 }
 
@@ -347,7 +361,14 @@ case "${1:-}" in
         echo
         if [[ $REPLY =~ ^[Yy]$ ]]; then
             log_info "Uninstalling MyTube..."
-            docker-compose down --volumes --remove-orphans
+            
+            # Detect compose command for uninstall
+            if command -v "docker-compose" &> /dev/null; then
+                docker-compose down --volumes --remove-orphans
+            elif docker compose version &> /dev/null; then
+                docker compose down --volumes --remove-orphans
+            fi
+            
             docker system prune -f
             rm -rf uploads data logs
             log_success "MyTube uninstalled successfully."
