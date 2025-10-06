@@ -13,9 +13,17 @@ COPY package*.json pnpm-lock.yaml ./
 RUN npm install -g pnpm && pnpm install --frozen-lockfile
 
 # Copy source code and config files
-COPY src/ ./src/
-COPY public/ ./public/
-COPY index.html vite.config.js jsconfig.json components.json ./
+COPY . .
+
+# Debug: List files to verify copy worked
+RUN echo "=== Debugging file structure ===" && \
+    ls -la && \
+    echo "=== src directory ===" && \
+    ls -la src/ && \
+    echo "=== src/lib directory ===" && \
+    ls -la src/lib/ && \
+    echo "=== api.js file ===" && \
+    ls -la src/lib/api.js
 
 # Build arguments
 ARG VITE_API_URL=http://localhost:5000/api
