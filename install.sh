@@ -32,9 +32,20 @@ log_error() {
 # Check if running as root
 check_root() {
     if [[ $EUID -eq 0 ]]; then
-        log_error "This script should not be run as root for security reasons."
-        log_info "Please run as a regular user with sudo privileges."
-        exit 1
+        log_warning "Running as root detected."
+        log_warning "For security reasons, it's recommended to run as a regular user with sudo privileges."
+        echo
+        read -p "Do you want to continue as root? (y/N): " -n 1 -r
+        echo
+        if [[ ! $REPLY =~ ^[Yy]$ ]]; then
+            log_info "Installation cancelled. Please run as a regular user with sudo privileges."
+            log_info "Example: sudo adduser mytube && su - mytube"
+            exit 1
+        fi
+        log_warning "Continuing as root. Please ensure proper file permissions after installation."
+        ROOT_INSTALL=true
+    else
+        ROOT_INSTALL=false
     fi
 }
 
@@ -86,8 +97,13 @@ check_requirements() {
     # Check Docker daemon
     if ! docker info &> /dev/null; then
         log_error "Docker daemon is not running or accessible."
-        log_info "Please start Docker and ensure your user is in the docker group."
-        log_info "Run: sudo usermod -aG docker \$USER && newgrp docker"
+        if [[ $EUID -eq 0 ]]; then
+            log_info "Please start Docker daemon: systemctl start docker"
+            log_info "Enable Docker on boot: systemctl enable docker"
+        else
+            log_info "Please start Docker and ensure your user is in the docker group."
+            log_info "Run: sudo usermod -aG docker \$USER && newgrp docker"
+        fi
         exit 1
     fi
     
@@ -145,6 +161,26 @@ setup_directories() {
     # Set proper permissions
     chmod 755 uploads
     chmod 755 data
+    
+    # If running as root, set ownership to a non-root user for security
+    if [[ $ROOT_INSTALL == true ]]; then
+        log_info "Setting proper ownership for security (running as root)..."
+        
+        # Try to use existing non-root user or create one
+        if id "mytube" &>/dev/null; then
+            chown -R mytube:mytube uploads data logs .env 2>/dev/null || true
+            log_info "Set ownership to existing 'mytube' user"
+        elif id "ubuntu" &>/dev/null; then
+            chown -R ubuntu:ubuntu uploads data logs .env 2>/dev/null || true
+            log_info "Set ownership to existing 'ubuntu' user"
+        elif id "debian" &>/dev/null; then
+            chown -R debian:debian uploads data logs .env 2>/dev/null || true
+            log_info "Set ownership to existing 'debian' user"
+        else
+            log_warning "No suitable non-root user found. Files will remain owned by root."
+            log_warning "Consider creating a dedicated user: useradd -m -s /bin/bash mytube"
+        fi
+    fi
     
     log_success "Directories created successfully."
 }
@@ -242,9 +278,19 @@ show_completion_info() {
     log_info "  Environment:      .env"
     log_info "  Docker Compose:   docker-compose.yml"
     echo
+    
+    if [[ $ROOT_INSTALL == true ]]; then
+        log_warning "SECURITY NOTICE: Installation was run as root!"
+        log_warning "For production use, consider:"
+        log_warning "  1. Create a dedicated user: useradd -m -s /bin/bash mytube"
+        log_warning "  2. Transfer ownership: chown -R mytube:mytube /path/to/my-tube"
+        log_warning "  3. Run services as non-root user"
+        echo
+    fi
+    
     log_warning "Important: Change default passwords and configure SSL for production use!"
     echo
-    log_info "For support and documentation, visit: https://github.com/yourusername/my-tube"
+    log_info "For support and documentation, visit: https://github.com/ndoroe/my-tube"
 }
 
 # Cleanup function for errors
