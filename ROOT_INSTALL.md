@@ -2,6 +2,13 @@
 
 This guide covers installing MyTube as the root user, which is common in server environments.
 
+## 🆕 Recent Updates
+
+- **JWT Authentication Fixed**: Resolved video upload failures (HTTP 422 errors)
+- **Container Health Improved**: Fixed backend container health monitoring
+- **Multi-Domain Support**: Enhanced CORS configuration for flexible deployment
+- **Documentation Updated**: Comprehensive documentation updates with troubleshooting
+
 ## 🚨 Security Notice
 
 Running as root is **not recommended** for production environments. However, it's sometimes necessary for initial server setup or in containerized environments.

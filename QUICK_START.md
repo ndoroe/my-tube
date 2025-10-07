@@ -52,11 +52,13 @@ After installation completes:
 - Drag and drop a video file or click to browse
 - Add title, description, category, and tags
 - Click "Upload Video"
+- **Note**: Video uploads are now working correctly after JWT authentication fixes
 
 ### 5. Watch Processing
 - Videos are processed automatically in the background
 - Multiple resolutions are generated (360p, 720p, 1080p, 4K)
 - You can monitor progress on the video page
+- Processing is handled by Celery workers for optimal performance
 
 ## 📱 Using the Platform
 
@@ -84,9 +86,27 @@ After installation completes:
 
 - **Admin-Only Registration**: Only admins can create accounts
 - **Role-Based Access**: Separate permissions for users and admins
-- **Secure Authentication**: JWT tokens with automatic refresh
+- **Secure Authentication**: JWT tokens with automatic refresh (Fixed string identity compatibility)
 - **File Validation**: Comprehensive upload security checks
+- **CORS Protection**: Configurable allowed origins for secure cross-domain access
+- **Multi-Domain Support**: Configure allowed hosts for flexible deployment
 - **Rate Limiting**: Protection against abuse
+
+## 🌐 Multi-Domain Configuration
+
+MyTube supports deployment across multiple domains/hosts:
+
+```bash
+# Configure in .env file
+ALLOWED_HOSTS=localhost,192.168.1.100,yourdomain.com
+CORS_ORIGINS=http://localhost,http://192.168.1.100,https://yourdomain.com
+```
+
+This enables:
+- Local development access
+- LAN network access  
+- External domain access
+- Proper CORS handling for all configured origins
 
 ## 📊 System Requirements
 

@@ -29,8 +29,8 @@ def login():
     if user and user.check_password(data['password']) and user.is_active:
         user.update_last_login()
         
-        access_token = create_access_token(identity=user.id)
-        refresh_token = create_refresh_token(identity=user.id)
+        access_token = create_access_token(identity=str(user.id))
+        refresh_token = create_refresh_token(identity=str(user.id))
         
         return jsonify({
             'access_token': access_token,
@@ -44,7 +44,7 @@ def login():
 @jwt_required()
 def register():
     """User registration endpoint (admin only)."""
-    current_user_id = get_jwt_identity()
+    current_user_id = int(get_jwt_identity())
     current_user = User.query.get(current_user_id)
     
     if not current_user or not current_user.is_admin():
@@ -83,13 +83,13 @@ def register():
 @jwt_required(refresh=True)
 def refresh():
     """Refresh access token."""
-    current_user_id = get_jwt_identity()
+    current_user_id = int(get_jwt_identity())
     user = User.query.get(current_user_id)
     
     if not user or not user.is_active:
         return jsonify({'error': 'User not found or inactive'}), 404
     
-    access_token = create_access_token(identity=user.id)
+    access_token = create_access_token(identity=str(user.id))
     
     return jsonify({
         'access_token': access_token,
@@ -100,7 +100,7 @@ def refresh():
 @jwt_required()
 def get_current_user():
     """Get current user information."""
-    current_user_id = get_jwt_identity()
+    current_user_id = int(get_jwt_identity())
     user = User.query.get(current_user_id)
     
     if not user:
@@ -112,7 +112,7 @@ def get_current_user():
 @jwt_required()
 def change_password():
     """Change user password."""
-    current_user_id = get_jwt_identity()
+    current_user_id = int(get_jwt_identity())
     user = User.query.get(current_user_id)
     
     if not user:

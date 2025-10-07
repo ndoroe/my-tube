@@ -2,6 +2,13 @@
 
 This guide covers deploying MyTube on various platforms, with a focus on Proxmox and self-hosting scenarios.
 
+## Recent Updates
+
+- **JWT Authentication**: Fixed JWT token identity format for improved compatibility
+- **CORS Configuration**: Enhanced support for multi-domain deployments
+- **Health Checks**: Improved container health monitoring
+- **Upload Reliability**: Resolved HTTP 422 upload errors
+
 ## Table of Contents
 
 1. [Prerequisites](#prerequisites)
@@ -141,6 +148,14 @@ JWT_SECRET_KEY=your-super-secure-jwt-key
 
 # Database
 POSTGRES_PASSWORD=your-secure-database-password
+
+# Multi-Domain Configuration (NEW)
+ALLOWED_HOSTS=yourdomain.com,192.168.1.100,localhost
+CORS_ORIGINS=https://yourdomain.com,http://192.168.1.100,http://localhost
+
+# Upload Configuration
+MAX_CONTENT_LENGTH=2147483648  # 2GB
+UPLOAD_FOLDER=/app/uploads
 
 # Domain
 DOMAIN=your-domain.com
@@ -356,6 +371,26 @@ docker-compose logs -f --tail=100
 
 ## Troubleshooting
 
+### Recently Fixed Issues
+
+1. **Video Upload Failures (HTTP 422)**:
+   - **Status**: ✅ FIXED in latest version
+   - **Issue**: JWT token identity format incompatibility
+   - **Solution**: JWT tokens now use string identities instead of integers
+   - **Action**: Update to latest version and rebuild containers
+
+2. **Backend Container Unhealthy**:
+   - **Status**: ✅ FIXED in latest version  
+   - **Issue**: Health check using authenticated endpoint
+   - **Solution**: Health check now uses `/api/categories/` (unauthenticated)
+   - **Action**: Update docker-compose.yml and restart backend
+
+3. **CORS Errors on Multi-Domain Setup**:
+   - **Status**: ✅ IMPROVED in latest version
+   - **Issue**: CORS origins not properly configured
+   - **Solution**: Enhanced CORS configuration in nginx and backend
+   - **Action**: Configure `CORS_ORIGINS` and `ALLOWED_HOSTS` in `.env`
+
 ### Common Issues
 
 1. **Services won't start**:
@@ -402,6 +437,18 @@ docker-compose logs -f --tail=100
    # Fix upload directory permissions
    sudo chown -R 1000:1000 uploads/
    chmod -R 755 uploads/
+   ```
+
+5. **Authentication Issues**:
+   ```bash
+   # Clear browser cache and localStorage
+   # Re-login to get new JWT token format
+   
+   # Check JWT configuration
+   grep JWT_SECRET_KEY .env
+   
+   # Verify backend is using string identities
+   docker-compose logs backend | grep "identity"
    ```
 
 5. **Out of disk space**:

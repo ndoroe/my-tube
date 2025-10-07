@@ -42,9 +42,10 @@ A modern, self-hosted video platform similar to YouTube, built with Flask and Re
 ### Backend
 - **Framework**: Flask (Python) with SQLAlchemy ORM
 - **Database**: PostgreSQL for production-grade performance
-- **Authentication**: JWT with role-based access control
+- **Authentication**: JWT with role-based access control (Fixed string identity compatibility)
 - **Video Processing**: FFmpeg for transcoding and thumbnail generation
 - **Background Tasks**: Celery with Redis for async processing
+- **CORS Support**: Configurable CORS origins for multi-domain deployment
 
 ### Frontend
 - **Framework**: React with modern hooks and functional components
@@ -94,7 +95,68 @@ The installation script will:
 - Initialize the database
 - Create your admin account
 
-## 📁 Project Structure
+## � Configuration
+
+### Allowed Hosts Configuration
+
+MyTube supports multiple allowed hosts for deployment flexibility:
+
+```bash
+# In .env file
+ALLOWED_HOSTS=my-tube,192.168.101.112,videos.edron.duckdns.org
+CORS_ORIGINS=http://my-tube,http://192.168.101.112,https://videos.edron.duckdns.org
+```
+
+This enables:
+- Local development (`my-tube`)
+- LAN access (`192.168.101.112`)
+- External domain access (`videos.edron.duckdns.org`)
+
+### Environment Variables
+
+Key configuration options:
+
+```bash
+# Database Configuration
+POSTGRES_DB=mytube
+POSTGRES_USER=mytube_user
+POSTGRES_PASSWORD=secure_password
+
+# JWT Configuration
+JWT_SECRET_KEY=your_secure_jwt_secret
+
+# Upload Configuration
+UPLOAD_FOLDER=/app/uploads
+MAX_CONTENT_LENGTH=2147483648  # 2GB
+
+# CORS Configuration
+CORS_ORIGINS=http://localhost,http://127.0.0.1
+ALLOWED_HOSTS=localhost,127.0.0.1
+```
+
+## 🚨 Troubleshooting
+
+### Common Issues
+
+**Video Upload Fails (HTTP 422)**
+- Fixed: JWT authentication now properly handles string identities
+- Ensure you're logged in with valid credentials
+- Check file format is supported (MP4, AVI, MOV, MKV, WebM, etc.)
+
+**Backend Container Unhealthy**
+- Fixed: Health check now uses unauthenticated endpoint
+- Check if containers are running: `docker compose ps`
+- View logs: `docker compose logs backend`
+
+**CORS Errors**
+- Configure `CORS_ORIGINS` in `.env` with your domain(s)
+- Restart containers after configuration changes
+
+**Authentication Issues**
+- JWT tokens now use string identities for compatibility
+- Clear browser cache/localStorage if experiencing login issues
+
+## �📁 Project Structure
 
 ```
 my-tube/
@@ -170,9 +232,12 @@ MyTube consists of several Docker services:
 
 ## 📖 Documentation
 
+- **[Quick Start Guide](QUICK_START.md)** - Get up and running in minutes
 - **[Deployment Guide](docs/DEPLOYMENT.md)** - Complete deployment instructions for Proxmox and other platforms
 - **[API Documentation](docs/API.md)** - REST API reference with examples
 - **[Testing Guide](docs/TESTING.md)** - Testing procedures and automation
+- **[Troubleshooting Guide](docs/TROUBLESHOOTING.md)** - Solutions to common issues
+- **[Changelog](CHANGELOG.md)** - Version history and updates
 
 ## 🔧 Usage
 

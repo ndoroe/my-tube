@@ -18,7 +18,7 @@ def get_categories():
     user_role = None
     
     try:
-        current_user_id = get_jwt_identity()
+        current_user_id = int(get_jwt_identity())
         if current_user_id:
             user = User.query.get(current_user_id)
             user_role = user.role if user else None
@@ -43,7 +43,7 @@ def get_category(category_id):
     # Check access permissions
     current_user_id = None
     try:
-        current_user_id = get_jwt_identity()
+        current_user_id = int(get_jwt_identity())
     except:
         pass
     
@@ -58,7 +58,7 @@ def get_category(category_id):
 @jwt_required()
 def create_category():
     """Create a new category."""
-    current_user_id = get_jwt_identity()
+    current_user_id = int(get_jwt_identity())
     user = User.query.get(current_user_id)
     
     if not user or not user.is_active:
@@ -102,7 +102,7 @@ def create_category():
 @jwt_required()
 def update_category(category_id):
     """Update a category."""
-    current_user_id = get_jwt_identity()
+    current_user_id = int(get_jwt_identity())
     user = User.query.get(current_user_id)
     category = Category.query.get_or_404(category_id)
     
@@ -145,7 +145,7 @@ def update_category(category_id):
 @jwt_required()
 def delete_category(category_id):
     """Delete a category."""
-    current_user_id = get_jwt_identity()
+    current_user_id = int(get_jwt_identity())
     user = User.query.get(current_user_id)
     category = Category.query.get_or_404(category_id)
     
@@ -167,7 +167,7 @@ def delete_category(category_id):
 @jwt_required()
 def toggle_category_sharing(category_id):
     """Toggle category sharing status (admin only)."""
-    current_user_id = get_jwt_identity()
+    current_user_id = int(get_jwt_identity())
     user = User.query.get(current_user_id)
     
     if not user or not user.is_admin():

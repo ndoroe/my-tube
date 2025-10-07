@@ -9,7 +9,7 @@ users_bp = Blueprint('users', __name__)
 @jwt_required()
 def get_users():
     """Get list of users (admin only)."""
-    current_user_id = get_jwt_identity()
+    current_user_id = int(get_jwt_identity())
     current_user = User.query.get(current_user_id)
     
     if not current_user or not current_user.is_admin():
@@ -53,7 +53,7 @@ def get_users():
 @jwt_required()
 def get_user(user_id):
     """Get user details."""
-    current_user_id = get_jwt_identity()
+    current_user_id = int(get_jwt_identity())
     current_user = User.query.get(current_user_id)
     target_user = User.query.get_or_404(user_id)
     
@@ -69,7 +69,7 @@ def get_user(user_id):
 @jwt_required()
 def toggle_user_status(user_id):
     """Toggle user active status (admin only)."""
-    current_user_id = get_jwt_identity()
+    current_user_id = int(get_jwt_identity())
     current_user = User.query.get(current_user_id)
     
     if not current_user or not current_user.is_admin():
@@ -101,7 +101,7 @@ def toggle_user_status(user_id):
 @jwt_required()
 def promote_user(user_id):
     """Promote user to admin (admin only)."""
-    current_user_id = get_jwt_identity()
+    current_user_id = int(get_jwt_identity())
     current_user = User.query.get(current_user_id)
     
     if not current_user or not current_user.is_admin():
@@ -124,7 +124,7 @@ def promote_user(user_id):
 @jwt_required()
 def demote_user(user_id):
     """Demote admin to regular user (admin only)."""
-    current_user_id = get_jwt_identity()
+    current_user_id = int(get_jwt_identity())
     current_user = User.query.get(current_user_id)
     
     if not current_user or not current_user.is_admin():
@@ -156,7 +156,7 @@ def demote_user(user_id):
 @jwt_required()
 def get_user_stats(user_id):
     """Get user statistics."""
-    current_user_id = get_jwt_identity()
+    current_user_id = int(get_jwt_identity())
     current_user = User.query.get(current_user_id)
     target_user = User.query.get_or_404(user_id)
     
@@ -208,7 +208,7 @@ def get_user_stats(user_id):
 @jwt_required()
 def delete_user(user_id):
     """Delete user account (admin only)."""
-    current_user_id = get_jwt_identity()
+    current_user_id = int(get_jwt_identity())
     current_user = User.query.get(current_user_id)
     
     if not current_user or not current_user.is_admin():

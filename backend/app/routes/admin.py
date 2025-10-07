@@ -11,7 +11,7 @@ admin_bp = Blueprint('admin', __name__)
 @jwt_required()
 def get_dashboard():
     """Get admin dashboard statistics."""
-    current_user_id = get_jwt_identity()
+    current_user_id = int(get_jwt_identity())
     current_user = User.query.get(current_user_id)
     
     if not current_user or not current_user.is_admin():
@@ -95,7 +95,7 @@ def get_dashboard():
 @jwt_required()
 def get_system_info():
     """Get system information."""
-    current_user_id = get_jwt_identity()
+    current_user_id = int(get_jwt_identity())
     current_user = User.query.get(current_user_id)
     
     if not current_user or not current_user.is_admin():
@@ -141,7 +141,7 @@ def get_system_info():
 @jwt_required()
 def cleanup_system():
     """Clean up orphaned files and failed uploads."""
-    current_user_id = get_jwt_identity()
+    current_user_id = int(get_jwt_identity())
     current_user = User.query.get(current_user_id)
     
     if not current_user or not current_user.is_admin():
@@ -221,7 +221,7 @@ def cleanup_system():
 @jwt_required()
 def reprocess_failed_videos():
     """Reprocess failed videos."""
-    current_user_id = get_jwt_identity()
+    current_user_id = int(get_jwt_identity())
     current_user = User.query.get(current_user_id)
     
     if not current_user or not current_user.is_admin():
@@ -252,7 +252,7 @@ def reprocess_failed_videos():
 @jwt_required()
 def bulk_share_categories():
     """Bulk update category sharing status."""
-    current_user_id = get_jwt_identity()
+    current_user_id = int(get_jwt_identity())
     current_user = User.query.get(current_user_id)
     
     if not current_user or not current_user.is_admin():

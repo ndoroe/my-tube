@@ -36,7 +36,7 @@ def get_videos():
     current_user_id = None
     user_role = None
     try:
-        current_user_id = get_jwt_identity()
+        current_user_id = int(get_jwt_identity())
         if current_user_id:
             user = User.query.get(current_user_id)
             user_role = user.role if user else None
@@ -110,7 +110,7 @@ def get_video(video_id):
     current_user_id = None
     user_role = None
     try:
-        current_user_id = get_jwt_identity()
+        current_user_id = int(get_jwt_identity())
         if current_user_id:
             user = User.query.get(current_user_id)
             user_role = user.role if user else None
@@ -128,7 +128,7 @@ def get_video(video_id):
 @jwt_required()
 def upload_video():
     """Upload a new video."""
-    current_user_id = get_jwt_identity()
+    current_user_id = int(get_jwt_identity())
     user = User.query.get(current_user_id)
     
     if not user or not user.is_active:
@@ -214,7 +214,7 @@ def upload_video():
 @jwt_required()
 def update_video(video_id):
     """Update video metadata."""
-    current_user_id = get_jwt_identity()
+    current_user_id = int(get_jwt_identity())
     user = User.query.get(current_user_id)
     video = Video.query.get_or_404(video_id)
     
@@ -258,7 +258,7 @@ def update_video(video_id):
 @jwt_required()
 def delete_video(video_id):
     """Delete a video."""
-    current_user_id = get_jwt_identity()
+    current_user_id = int(get_jwt_identity())
     user = User.query.get(current_user_id)
     video = Video.query.get_or_404(video_id)
     
@@ -294,7 +294,7 @@ def stream_video(video_id, resolution):
     current_user_id = None
     user_role = None
     try:
-        current_user_id = get_jwt_identity()
+        current_user_id = int(get_jwt_identity())
         if current_user_id:
             user = User.query.get(current_user_id)
             user_role = user.role if user else None
@@ -322,7 +322,7 @@ def stream_video(video_id, resolution):
 @jwt_required()
 def download_video(video_id, resolution):
     """Download video file."""
-    current_user_id = get_jwt_identity()
+    current_user_id = int(get_jwt_identity())
     user = User.query.get(current_user_id)
     video = Video.query.get_or_404(video_id)
     
@@ -358,7 +358,7 @@ def get_thumbnail(video_id):
     current_user_id = None
     user_role = None
     try:
-        current_user_id = get_jwt_identity()
+        current_user_id = int(get_jwt_identity())
         if current_user_id:
             user = User.query.get(current_user_id)
             user_role = user.role if user else None

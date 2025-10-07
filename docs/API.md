@@ -16,6 +16,12 @@ MyTube uses JWT (JSON Web Tokens) for authentication. Include the token in the A
 Authorization: Bearer <your-jwt-token>
 ```
 
+### Recent Authentication Improvements
+
+- **JWT Identity Fix**: Fixed JWT token identity to use string format for compatibility
+- **CORS Support**: Configurable CORS origins for multi-domain deployment
+- **Token Validation**: Enhanced token validation and error handling
+
 ## Response Format
 
 All API responses follow this format:
@@ -572,6 +578,37 @@ class MyTubeAPI:
             response = self.session.post(f'{self.base_url}/videos/upload', 
                                        files=files, data=data)
         return response.json()
+
+## Troubleshooting
+
+### Common API Errors
+
+#### HTTP 422 - Unprocessable Entity
+- **Issue**: Video upload fails with 422 error
+- **Fix**: Ensure you're properly authenticated with a valid JWT token
+- **Note**: This issue has been resolved in the latest version with JWT string identity fixes
+
+#### HTTP 401 - Unauthorized  
+- **Issue**: "Subject must be a string" or "Invalid payload string" errors
+- **Fix**: Update to latest version - JWT token format has been fixed
+- **Workaround**: Re-login to get a new properly formatted token
+
+#### CORS Errors
+- **Issue**: Cross-origin requests blocked
+- **Fix**: Configure `CORS_ORIGINS` in environment variables
+- **Example**: `CORS_ORIGINS=http://localhost:3000,https://yourdomain.com`
+
+#### Health Check Failures
+- **Issue**: Backend containers showing as unhealthy
+- **Fix**: Health check endpoint updated to use unauthenticated route
+- **Note**: This has been resolved in the latest version
+
+### Best Practices
+
+1. **Token Management**: Always check token expiry and refresh when needed
+2. **Error Handling**: Implement proper error handling for all API calls
+3. **File Uploads**: Validate file types and sizes before uploading
+4. **Rate Limiting**: Implement client-side rate limiting for API calls
 
 # Usage
 api = MyTubeAPI('http://localhost:5000/api')

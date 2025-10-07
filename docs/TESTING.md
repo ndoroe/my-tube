@@ -2,6 +2,13 @@
 
 This document outlines testing procedures for MyTube to ensure all components work correctly.
 
+## Recent Test Updates
+
+- **JWT Authentication**: Added tests for string identity JWT tokens
+- **Upload Functionality**: Verified video upload fixes (HTTP 422 resolution)
+- **CORS Testing**: Multi-domain CORS configuration validation
+- **Health Checks**: Container health monitoring tests
+
 ## Table of Contents
 
 1. [Testing Overview](#testing-overview)
@@ -187,6 +194,79 @@ with app.app_context():
     db.create_all()
     print('Database tables created successfully')
 "
+```
+
+### JWT Authentication Tests
+
+Test the fixed JWT authentication system:
+
+```bash
+# Test login and token generation
+curl -X POST http://localhost:5000/api/auth/login \
+  -H "Content-Type: application/json" \
+  -d '{"username": "admin", "password": "your_password"}'
+
+# Expected: JWT token with string identity
+# Verify token format (should have "sub": "1" not "sub": 1)
+
+# Test protected endpoint
+TOKEN="your-jwt-token-here"
+curl -H "Authorization: Bearer $TOKEN" \
+  http://localhost:5000/api/auth/me
+
+# Expected: User information without JWT errors
+
+# Test video upload with JWT
+curl -X POST http://localhost:5000/api/videos/upload \
+  -H "Authorization: Bearer $TOKEN" \
+  -F "video=@test-video.mp4" \
+  -F "title=Test Video" \
+  -F "description=Test upload" \
+  -F "category_id=1"
+
+# Expected: Success response, no HTTP 422 error
+```
+
+### CORS Configuration Tests
+
+Test multi-domain CORS setup:
+
+```bash
+# Test CORS from different origins
+curl -H "Origin: http://localhost:3000" \
+  -H "Access-Control-Request-Method: POST" \
+  -H "Access-Control-Request-Headers: authorization,content-type" \
+  -X OPTIONS http://localhost:5000/api/videos/upload
+
+# Expected: CORS headers in response
+
+# Test with configured domain
+curl -H "Origin: https://yourdomain.com" \
+  -H "Access-Control-Request-Method: GET" \
+  -X OPTIONS http://localhost:5000/api/videos
+
+# Expected: Access-Control-Allow-Origin header with yourdomain.com
+```
+
+### Container Health Tests
+
+Test container health monitoring:
+
+```bash
+# Check container health status
+docker-compose ps
+
+# Expected: All containers should show "healthy" status
+
+# Test health check endpoint directly
+curl -f http://localhost:5000/api/categories/
+
+# Expected: Categories list without authentication error
+
+# Monitor health check logs
+docker-compose logs backend | grep health
+
+# Expected: No authentication failures in health checks
 ```
 
 ### Video Processing Tests

@@ -1,7 +1,7 @@
 import os
 import subprocess
 import json
-from celery import current_app
+from flask import current_app
 from app import celery, db
 from app.models import Video, VideoResolution
 import ffmpeg
@@ -72,6 +72,8 @@ class VideoProcessor:
     
     def extract_metadata(self):
         """Extract video metadata using FFprobe."""
+        print(f"Processing video file: {self.video.file_path}")
+        print(f"File exists: {os.path.exists(self.video.file_path)}")
         try:
             probe = ffmpeg.probe(self.video.file_path)
             video_stream = next((stream for stream in probe['streams'] 
@@ -96,6 +98,10 @@ class VideoProcessor:
             db.session.commit()
             
         except Exception as e:
+            print(f"Error details: {str(e)}")
+            print(f"Error type: {type(e)}")
+            if hasattr(e, 'stderr'):
+                print(f"stderr: {e.stderr}")
             raise Exception(f"Failed to extract metadata: {str(e)}")
     
     def generate_thumbnail(self):
